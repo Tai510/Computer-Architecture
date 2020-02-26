@@ -11,7 +11,7 @@ class CPU:
     # and 8 general-purpose registers.
         self.reg = [0] * 8
         self.pc = 0
-        self.ram = [0] * 8
+        self.ram = [0] * 256
 
     # In `CPU`, add method `ram_read()` and `ram_write()`
     # that access the RAM inside the `CPU` object.
@@ -25,10 +25,29 @@ class CPU:
     def ram_write(self, memory_data_register, memory_address_register):
         self.ram[memory_address_register] = memory_data_register
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
+        try:
+            address = 0
+            # Open the file
+            with open(sys.argv[1]) as f:
+                # Read all the lines
+                for line in f:
+                    # Parse out the comments
+                    comment_split = line.strip().split("#")
+                    # Cast number strings to ints
+                    value = comment_split[0].strip()
+                    # Ignore blank lines
+                    if value == "":
+                        continue
+                    instruction = int(value, 2)
+                    # Populate a memory array
+                    self.ram[address] = instruction
+                    address += 1
 
-        address = 0
+        except FileNotFoundError:
+            print("File not found")
+            sys.exit(2)
 
         # For now, we've just hardcoded a program:
 
@@ -113,7 +132,7 @@ class CPU:
         
 
 cpu = CPU()
-cpu.load()
+# cpu.load()
 print(cpu.ram_read(0)) # test for ram_read works (print 130)
 cpu.ram_write(0b10000001, 0) # puts binary 129 in register 0
 print(cpu.ram_read(0)) # test for ram_write works (print 129)
